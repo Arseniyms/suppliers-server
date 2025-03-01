@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+    mongo:
+        image: mongo:latest
+        restart: always
+        # environment:
+        #     MONGO_INITDB_ROOT_USERNAME: adm
+        #     MONGO_INITDB_ROOT_PASSWORD: 1234
+        #     MONGO_INITDB_DATABASE: vendors
+        networks: 
+            - mongo-compose-network
+        ports:
+            - 27017:27017
+        volumes:
+            - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+    golang-connectors:
+        build:
+            context: ../ #тут прописать путь до докерфйла
+            dockerfile: Dockerfile
+        environment:
+            - MONGO_URI=mongodb://mongo:27017
+        ports:
+            - 9090:9090
+        depends_on:
+            - mongo
+        networks:
+            - mongo-compose-network
+
+
+networks:
+  mongo-compose-network:
