@@ -12,12 +12,12 @@ services:
             - mongo-compose-network
         ports:
             - 27017:27017
-        volumes:
-            - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+        # volumes:
+        #     - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
     golang-connectors:
         build:
-            context: ../ #тут прописать путь до докерфйла
+            context: .
             dockerfile: Dockerfile
         environment:
             - MONGO_URI=mongodb://mongo:27017
