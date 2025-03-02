@@ -15,10 +15,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	mongoUri       = "MONGO_URI"
+	databaseName   = "DATABASE_NAME"
+	collectionName = "COLLECTION_NAME"
+
+	extId = "extID"
+)
+
 var client *mongo.Client
 
 func ConnectToDB() *mongo.Client {
-	mongoURI := os.Getenv("MONGO_URI")
+	mongoURI := os.Getenv(mongoUri)
 	if mongoURI == "" {
 		log.Fatal("MONGO_URI environment variable not set")
 	}
@@ -44,8 +52,13 @@ func ConnectToDB() *mongo.Client {
 	return client
 }
 
+func GetSuccess(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Successfully connected\nNow you can make requets"))
+}
+
 func GetData(w http.ResponseWriter, r *http.Request) {
-	collection := client.Database("testdb").Collection("users")
+	collection := getCollection()
 
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
@@ -83,7 +96,7 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Company is: ", c)
 
-	collection := client.Database("testdb").Collection("users")
+	collection := getCollection()
 	_, err := collection.InsertOne(context.Background(), c)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -91,6 +104,8 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Company successfully created\n"))
+	json.NewEncoder(w).Encode(c)
 }
 
 func PatchItem(w http.ResponseWriter, r *http.Request) {
@@ -98,15 +113,15 @@ func PatchItem(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	id, ok := updateData["extId"].(string)
+	id, ok := updateData[extId].(string)
 	if !ok || id == "" {
 		http.Error(w, "Missing or invalid ID", http.StatusBadRequest)
 		return
 	}
 
-	collection := client.Database("testdb").Collection("users")
-	delete(updateData, "extId")
-	filter := bson.M{"extId": id}
+	collection := getCollection()
+	delete(updateData, extId)
+	filter := bson.M{extId: id}
 	update := bson.M{"$set": updateData}
 
 	result, err := collection.UpdateOne(context.Background(), filter, update)
@@ -125,8 +140,8 @@ func PatchItem(w http.ResponseWriter, r *http.Request) {
 func DeleteItem(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
 
-	filter := bson.M{"extId": idStr}
-	collection := client.Database("testdb").Collection("users")
+	filter := bson.M{extId: idStr}
+	collection := getCollection()
 
 	result, err := collection.DeleteOne(context.Background(), filter)
 
@@ -141,4 +156,15 @@ func DeleteItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func getCollection() *mongo.Collection {
+	databaseNameEnv := os.Getenv(databaseName)
+	collectionNameEnv := os.Getenv(collectionName)
+
+	if databaseNameEnv == "" || collectionNameEnv == "" {
+		log.Fatal("databaseNameEnv or collectionNameEnv environment variable not set")
+	}
+
+	return client.Database(databaseNameEnv).Collection(collectionNameEnv)
 }

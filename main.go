@@ -12,6 +12,7 @@ func main() {
 	client := connectors.ConnectToDB()
 	defer client.Disconnect(context.Background())
 
+	http.HandleFunc("/", connectors.GetSuccess)
 	http.HandleFunc("/users", connectors.GetData)
 	http.HandleFunc("/users/add", connectors.CreateItem)
 	http.HandleFunc("/users/patch", connectors.PatchItem)
