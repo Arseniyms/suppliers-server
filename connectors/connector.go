@@ -21,8 +21,6 @@ const (
 	mongoUri       = "MONGO_URI"
 	databaseName   = "DATABASE_NAME"
 	collectionName = "COLLECTION_NAME"
-
-	extId = "extID"
 )
 
 var client *mongo.Client
@@ -56,10 +54,18 @@ func ConnectToDB() *mongo.Client {
 
 func GetSuccess(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Successfully connected\nNow you can make requets"))
+	w.Write([]byte("Successfully connected\nNow you can make requests"))
 }
 
 func GetData(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	if idStr != "" {
+		getDataById(w, r)
+		return
+	}
+
 	collection := getCollection()
 
 	cursor, err := collection.Find(context.Background(), bson.M{})
@@ -85,14 +91,30 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(companies)
 }
 
-func CreateItem(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func getDataById(w http.ResponseWriter, r *http.Request) {
+	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	filter := bson.M{"extId": idStr}
+	collection := getCollection()
 
+	var result Company
+	err := collection.FindOne(context.Background(), filter).Decode(&result)
+
+	if err == mongo.ErrNoDocuments {
+		http.Error(w, "No found items", http.StatusNotFound)
+		return
+	}
+	if err != nil {
+		http.Error(w, "Error finding item", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(result)
+}
+
+func CreateItem(w http.ResponseWriter, r *http.Request) {
 	var c Company
 	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -118,15 +140,15 @@ func PatchItem(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	id, ok := updateData[extId].(string)
+	id, ok := updateData["extId"].(string)
 	if !ok || id == "" {
 		http.Error(w, "Missing or invalid ID", http.StatusBadRequest)
 		return
 	}
 
 	collection := getCollection()
-	delete(updateData, extId)
-	filter := bson.M{extId: id}
+	delete(updateData, "extId")
+	filter := bson.M{"extId": id}
 	update := bson.M{"$set": updateData}
 
 	result, err := collection.UpdateOne(context.Background(), filter, update)
@@ -140,12 +162,13 @@ func PatchItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Company successfully updated\n"))
 }
 
 func DeleteItem(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
 
-	filter := bson.M{extId: idStr}
+	filter := bson.M{"extId": idStr}
 	collection := getCollection()
 
 	result, err := collection.DeleteOne(context.Background(), filter)
@@ -161,6 +184,7 @@ func DeleteItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Company successfully deleted\n"))
 }
 
 func getCollection() *mongo.Collection {

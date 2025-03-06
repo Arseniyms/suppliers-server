@@ -13,14 +13,24 @@ func main() {
 	defer client.Disconnect(context.Background())
 
 	http.HandleFunc("/", connectors.GetSuccess)
-	http.HandleFunc("/users", connectors.GetData)
-	http.HandleFunc("/users/add", connectors.CreateItem)
-	http.HandleFunc("/users/patch", connectors.PatchItem)
 
 	http.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodDelete {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS, PATCH")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+
+		switch r.Method {
+		case http.MethodGet:
+			connectors.GetData(w, r)
+		case http.MethodDelete:
 			connectors.DeleteItem(w, r)
-		} else {
+		case http.MethodPost:
+			connectors.CreateItem(w, r)
+		case http.MethodPatch:
+			connectors.PatchItem(w, r)
+		case http.MethodOptions:
+			return
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
