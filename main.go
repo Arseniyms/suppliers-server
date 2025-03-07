@@ -1,6 +1,7 @@
 package main
 
 import (
+	"arseniyms/suppliers/server/auth"
 	"arseniyms/suppliers/server/connectors"
 	"context"
 	"fmt"
@@ -14,8 +15,27 @@ func main() {
 
 	http.HandleFunc("/", connectors.GetSuccess)
 
-	http.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	http.HandleFunc(auth.LOGIN_PATH, func(w http.ResponseWriter, r *http.Request) {
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS, PATCH")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		switch r.Method {
+		case http.MethodPost:
+			auth.Login(w, r)
+		case http.MethodGet:
+			auth.ProtectedEndpoint(w, r)
+		case http.MethodOptions:
+			return
+		default:
+			http.Error(w, "Login Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	http.HandleFunc(connectors.COMPANIES_PATH, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS, PATCH")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 

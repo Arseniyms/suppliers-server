@@ -1,6 +1,7 @@
 package connectors
 
 import (
+	"arseniyms/suppliers/server/auth"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -22,6 +23,15 @@ const (
 	databaseName   = "DATABASE_NAME"
 	collectionName = "COLLECTION_NAME"
 )
+
+const (
+	COMPANIES_PATH = "/companies/"
+)
+
+type Success struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
 
 var client *mongo.Client
 
@@ -58,9 +68,15 @@ func GetSuccess(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetData(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	token, err := auth.ValidateConnection(r)
 
-	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(token)
+	}
+
+	idStr := strings.TrimPrefix(r.URL.Path, COMPANIES_PATH)
 	if idStr != "" {
 		getDataById(w, r)
 		return
@@ -91,11 +107,12 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(companies)
 }
 
 func getDataById(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	idStr := strings.TrimPrefix(r.URL.Path, COMPANIES_PATH)
 	filter := bson.M{"extId": idStr}
 	collection := getCollection()
 
@@ -130,9 +147,10 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	success := Success{Code: http.StatusCreated, Msg: "Company successfully created"}
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Company successfully created\n"))
-	json.NewEncoder(w).Encode(c)
+	json.NewEncoder(w).Encode(success)
+
 }
 
 func PatchItem(w http.ResponseWriter, r *http.Request) {
@@ -161,12 +179,14 @@ func PatchItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	success := Success{Code: http.StatusOK, Msg: "Company successfully updated"}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Company successfully updated\n"))
+	json.NewEncoder(w).Encode(success)
 }
 
 func DeleteItem(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/users/")
+	idStr := strings.TrimPrefix(r.URL.Path, COMPANIES_PATH)
 
 	filter := bson.M{"extId": idStr}
 	collection := getCollection()
@@ -184,7 +204,9 @@ func DeleteItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Company successfully deleted\n"))
+	success := Success{Code: http.StatusOK, Msg: "Company successfully deleted"}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(success)
 }
 
 func getCollection() *mongo.Collection {
