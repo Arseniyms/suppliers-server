@@ -68,13 +68,7 @@ func GetSuccess(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetData(w http.ResponseWriter, r *http.Request) {
-	token, err := auth.ValidateConnection(r)
-
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(token)
-	}
+	isAuth := auth.GetIsAuthentificated(r)
 
 	idStr := strings.TrimPrefix(r.URL.Path, COMPANIES_PATH)
 	if idStr != "" {
@@ -98,6 +92,8 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		validateCompany(&c, isAuth)
 
 		companies = append(companies, c)
 	}
@@ -127,6 +123,8 @@ func getDataById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error finding item", http.StatusInternalServerError)
 		return
 	}
+
+	validateCompany(&result, auth.GetIsAuthentificated(r))
 
 	json.NewEncoder(w).Encode(result)
 }
@@ -218,4 +216,10 @@ func getCollection() *mongo.Collection {
 	}
 
 	return client.Database(databaseNameEnv).Collection(collectionNameEnv)
+}
+
+func validateCompany(c *Company, isAuth bool) {
+	if !isAuth {
+		c.Phones = ""
+	}
 }

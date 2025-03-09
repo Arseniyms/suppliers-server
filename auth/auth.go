@@ -17,7 +17,7 @@ type LoginSuccess struct {
 }
 
 type Admin struct {
-	Password string `json:password`
+	Password string `json:"password"`
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if admin.Password != "1234" {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		http.Error(w, "Wrong password", http.StatusUnauthorized)
 		return
 	}
 
@@ -83,4 +83,10 @@ func ValidateConnection(r *http.Request) (string, error) {
 		return "", errors.New("unauthorized")
 	}
 	return token.Raw, nil
+}
+
+func GetIsAuthentificated(r *http.Request) bool {
+	token, err := ValidateConnection(r)
+
+	return err == nil && token != ""
 }
