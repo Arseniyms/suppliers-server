@@ -129,6 +129,20 @@ func getDataById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+func GetDataById(w http.ResponseWriter, idStr string) (*Company, error) {
+	filter := bson.M{"extId": idStr}
+	collection := getCollection()
+
+	var result Company
+	err := collection.FindOne(context.Background(), filter).Decode(&result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 func CreateItem(w http.ResponseWriter, r *http.Request) {
 	var c Company
 	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
@@ -221,5 +235,7 @@ func getCollection() *mongo.Collection {
 func validateCompany(c *Company, isAuth bool) {
 	if !isAuth {
 		c.Phones = ""
+		c.Emails = ""
+		c.People = ""
 	}
 }

@@ -29,7 +29,5 @@ services:
             - mongo
         networks:
             - mongo-compose-network
-
-
 networks:
   mongo-compose-network:

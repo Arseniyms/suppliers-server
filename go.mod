@@ -4,8 +4,6 @@ go 1.24.0
 
 require go.mongodb.org/mongo-driver v1.17.3
 
-require github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/snappy v0.0.4 // indirect
