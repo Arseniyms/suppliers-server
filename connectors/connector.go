@@ -85,7 +85,7 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	}
 	defer cursor.Close(context.Background())
 
-	var companies []Company
+	var companies []Company = []Company{}
 	for cursor.Next(context.Background()) {
 		var c Company
 		if err := cursor.Decode(&c); err != nil {

@@ -31,8 +31,8 @@ func SendToMail(w http.ResponseWriter, r *http.Request) {
 
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
-	from := ""
-	password := ""
+	from := "arseniymatus@gmail.com"
+	password := "stix bgso evsm eque"
 	to := []string{sendMail.Mail}
 
 	c, compErr := connectors.GetDataById(w, sendMail.ExtId)
@@ -63,8 +63,8 @@ func SendToMail(w http.ResponseWriter, r *http.Request) {
 			createLi("Адрес: ", c.Address) +
 			createLi("Тип ИТ оборудования: ", c.ITEquipment) +
 			createLi("Наименование ПО: ", c.SoftwareName) +
-			createLi("Наличие в реестре Минпромторга: ", yesOrNo(c.IsMinPromTorg)) +
-			createLi("Наличие в реестре Минцифор: ", yesOrNo(c.IsMincifr)) +
+			createLi("Наличие в реестре Минпромторга: ", c.IsMinPromTorg) +
+			createLi("Наличие в реестре Минцифр: ", c.IsMincifr) +
 			createLi("Краткое описание ИТ-решения: ", c.Description) +
 			createLi("Статус: ", c.Status) +
 			createLi("Апробация в Технопарке: ", c.Approbation) +
@@ -94,11 +94,4 @@ func SendToMail(w http.ResponseWriter, r *http.Request) {
 
 func createLi(title string, info string) string {
 	return "<li><b>" + title + "</b>" + info + "</li>"
-}
-
-func yesOrNo(b bool) string {
-	if b {
-		return "Да"
-	}
-	return "Нет"
 }

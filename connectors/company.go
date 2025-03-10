@@ -12,8 +12,8 @@ type Company struct {
 	Address       string `bson:"address" json:"address"`
 	ITEquipment   string `bson:"ITEquipment" json:"ITEquipment"`
 	SoftwareName  string `bson:"softwareName" json:"softwareName"`
-	IsMinPromTorg bool   `bson:"isMinPromTorg" json:"isMinPromTorg"`
-	IsMincifr     bool   `bson:"isMincifr" json:"isMincifr"`
+	IsMinPromTorg string `bson:"isMinPromTorg" json:"isMinPromTorg"`
+	IsMincifr     string `bson:"isMincifr" json:"isMincifr"`
 	Description   string `bson:"description" json:"description"`
 	Status        string `bson:"status" json:"status"`
 	Approbation   string `bson:"approbation" json:"approbation"`
