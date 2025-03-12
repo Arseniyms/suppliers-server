@@ -21,8 +21,8 @@ services:
             dockerfile: Dockerfile
         environment:
             - MONGO_URI=mongodb://mongo:27017
-            - DATABASE_NAME=suppliers
-            - COLLECTION_NAME=main
+        env_file:
+            - .env
         ports:
             - 9090:9090
         depends_on:

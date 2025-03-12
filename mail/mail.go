@@ -5,12 +5,18 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/smtp"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
 	MAIL_PATH = "/mail/"
+
+	ENV_ADDRESS_FROM          = "SMTP_ADDRESS_FROM"
+	ENV_ADDRESS_PASSWORD_FROM = "SMTP_PASSWORD_FROM"
+	ENV_SMTP_HOST             = "SMTP_HOST"
+	ENV_SMTP_PORT             = "SMTP_PORT"
 )
 
 type MailSuccess struct {
@@ -29,10 +35,10 @@ func SendToMail(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
-	from := "arseniymatus@gmail.com"
-	password := "stix bgso evsm eque"
+	smtpHost := os.Getenv(ENV_SMTP_HOST)
+	smtpPort := os.Getenv(ENV_SMTP_PORT)
+	from := os.Getenv(ENV_ADDRESS_FROM)
+	password := os.Getenv(ENV_ADDRESS_PASSWORD_FROM)
 	to := []string{sendMail.Mail}
 
 	c, compErr := connectors.GetDataById(w, sendMail.ExtId)
@@ -53,7 +59,6 @@ func SendToMail(w http.ResponseWriter, r *http.Request) {
 		"<html><body>" +
 			"<h1>" + c.CompanyName + "</h1>" +
 			"<ul>" +
-			createLi("Агрегатор/Вендор", c.CompanyType) +
 			createLi("Агрегатор/Вендор: ", c.CompanyType) +
 			createLi("ИНН: ", c.INN) +
 			createLi("Сайт: ", c.Website) +

@@ -71,6 +71,19 @@ func main() {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
+
+	http.HandleFunc("/import", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		switch r.Method {
+		case http.MethodPost:
+			connectors.CreateArrayItems(w, r)
+		case http.MethodOptions:
+			return
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 	// http.ListenAndServe("0.0.0.0:9090", nil)
 
 	fmt.Println("Server is running on port 9090")
