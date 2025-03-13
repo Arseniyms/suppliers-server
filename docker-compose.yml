@@ -1,19 +1,11 @@
-version: '3.7'
-
 services:
     mongo:
         image: mongo:latest
         restart: always
-        # environment:
-        #     MONGO_INITDB_ROOT_USERNAME: adm
-        #     MONGO_INITDB_ROOT_PASSWORD: 1234
-        #     MONGO_INITDB_DATABASE: vendors
-        networks: 
-            - mongo-compose-network
         ports:
             - 27017:27017
-        # volumes:
-        #     - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+        volumes:
+            - mongo_data:/data/db
 
     golang-connectors:
         build:
@@ -27,7 +19,22 @@ services:
             - 9090:9090
         depends_on:
             - mongo
-        networks:
-            - mongo-compose-network
-networks:
-  mongo-compose-network:
+    
+    # restore:
+    #     image: mongo:latest
+    #     volumes:
+    #         - ./backup:/backup
+    #     depends_on:
+    #         - mongo
+    #     entrypoint: ["bash", "./backup/restore.sh", "./backup/files/СЮДА ВСТАВИТЬ НАЗВАНИЕ БЕКАПА"]
+
+    backup_cron:
+        build:
+            context: ./backup
+            dockerfile: Dockerfile
+        depends_on:
+            - mongo
+        volumes:
+            - ./backup:/backup
+volumes:
+    mongo_data:
