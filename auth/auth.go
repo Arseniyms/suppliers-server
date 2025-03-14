@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -16,10 +17,6 @@ type LoginSuccess struct {
 	Token string `json:"token"`
 }
 
-type Admin struct {
-	Password string `json:"password"`
-}
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	var admin Admin
 	err := json.NewDecoder(r.Body).Decode(&admin)
@@ -28,7 +25,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if admin.Password != "1234" {
+	// err = ValidatePassword(admin.Password)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusUnauthorized)
+	// 	return
+	// }
+
+	if admin.Password != os.Getenv("TEMP_PASSWORD") {
 		http.Error(w, "Wrong password", http.StatusUnauthorized)
 		return
 	}
