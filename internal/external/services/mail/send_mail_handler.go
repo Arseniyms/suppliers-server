@@ -1,7 +1,7 @@
 package mail
 
 import (
-	"arseniyms/suppliers/server/connectors"
+	"arseniyms/suppliers/server/internal/controllers/companies"
 	"encoding/json"
 	"net/http"
 	"net/smtp"
@@ -9,25 +9,6 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
-const (
-	MAIL_PATH = "/mail/"
-
-	ENV_ADDRESS_FROM          = "SMTP_ADDRESS_FROM"
-	ENV_ADDRESS_PASSWORD_FROM = "SMTP_PASSWORD_FROM"
-	ENV_SMTP_HOST             = "SMTP_HOST"
-	ENV_SMTP_PORT             = "SMTP_PORT"
-)
-
-type MailSuccess struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
-}
-
-type SendMail struct {
-	Mail  string `json:"mail"`
-	ExtId string `json:"extId"`
-}
 
 func SendToMail(w http.ResponseWriter, r *http.Request) {
 	var sendMail SendMail
@@ -41,7 +22,7 @@ func SendToMail(w http.ResponseWriter, r *http.Request) {
 	password := os.Getenv(ENV_ADDRESS_PASSWORD_FROM)
 	to := []string{sendMail.Mail}
 
-	c, compErr := connectors.GetDataById(w, sendMail.ExtId)
+	c, compErr := companies.GetCompanyById(w, sendMail.ExtId)
 
 	if compErr != nil {
 		if compErr == mongo.ErrNoDocuments {

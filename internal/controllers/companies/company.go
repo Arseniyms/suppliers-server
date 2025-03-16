@@ -1,4 +1,4 @@
-package connectors
+package companies
 
 type Company struct {
 	ExtId         string `bson:"extId" json:"extId"`

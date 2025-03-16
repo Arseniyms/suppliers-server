@@ -1,7 +1,6 @@
-package auth
+package jwt
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -24,20 +23,4 @@ func CreateToken(password string) (string, error) {
 	}
 
 	return tokenString, nil
-}
-
-func ValidateJWT(tokenString string) (*jwt.Token, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if !token.Valid {
-		return nil, fmt.Errorf("invalid token")
-	}
-
-	return token, nil
 }
