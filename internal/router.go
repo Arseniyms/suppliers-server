@@ -3,6 +3,7 @@ package router
 import (
 	"arseniyms/suppliers/server/internal/controllers/auth"
 	"arseniyms/suppliers/server/internal/controllers/companies"
+	"arseniyms/suppliers/server/internal/controllers/password"
 	"arseniyms/suppliers/server/internal/external/services/mail"
 	"context"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 
 func HandleResponse() {
 	client := companies.ConnectToDB()
+	password.SetClient(client)
 	defer client.Disconnect(context.Background())
 
 	http.HandleFunc("/", companies.GetSuccess)
@@ -19,6 +21,7 @@ func HandleResponse() {
 	http.HandleFunc(auth.LOGIN_PATH, handeLogin)
 	http.HandleFunc(mail.MAIL_PATH, handleMail)
 	http.HandleFunc("/import", handleImport)
+	http.HandleFunc(password.PASSWORD_PATH, handlePassword)
 
 	fmt.Println("Server is running on port 9090")
 	log.Fatal(http.ListenAndServe(":9090", nil))
@@ -87,6 +90,23 @@ func handleImport(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		companies.CreateCompanyArray(w, r)
+	case http.MethodOptions:
+		return
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func handlePassword(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	switch r.Method {
+	case http.MethodGet:
+		password.IsPasswordEmpty(w, r)
+	case http.MethodPost:
+		password.CreatePassword(w, r)
+	case http.MethodDelete:
+		password.DeletePassword(w, r)
 	case http.MethodOptions:
 		return
 	default:
