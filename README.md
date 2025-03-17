@@ -5,7 +5,7 @@
 ## Установка
 
 ```bash
-    git clone https://github.com/Arseniyms/suppliers-server.git
+git clone https://github.com/Arseniyms/suppliers-server.git
 ```
 
 ## Запуск
@@ -40,7 +40,7 @@ TEMP_PASSWORD="пароль для входа админа"
 ### Запуск Docker-compose
 
 ```bash
-    docker-compose up
+docker-compose up
 ```
 
 После успешного запуска в консоли должно вывестись:
@@ -56,7 +56,7 @@ Server is running on port 9090
 Сделать тестовый запрос GET http://localhost:9090
 
 Ожидается код ответа 200 OK
-```http
-    Successfully connected
-    Now you can make requests
+```
+Successfully connected
+Now you can make requests
 ```
