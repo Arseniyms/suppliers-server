@@ -52,10 +52,6 @@ func SendToMail(w http.ResponseWriter, r *http.Request) {
 			createLi("Наличие в реестре Минпромторга: ", c.IsMinPromTorg) +
 			createLi("Наличие в реестре Минцифр: ", c.IsMincifr) +
 			createLi("Краткое описание ИТ-решения: ", c.Description) +
-			createLi("Статус: ", c.Status) +
-			createLi("Апробация в Технопарке: ", c.Approbation) +
-			createLi("Обратная связь со стороны Технопарка: ", c.Feedback) +
-			createLi("Комментарии: ", c.Comments) +
 			"</ul>" +
 			"</body></html>"
 
