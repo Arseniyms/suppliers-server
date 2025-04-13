@@ -19,6 +19,15 @@ services:
             - 9090:9090
         depends_on:
             - mongo
+
+    react-app:
+        build:
+            context: ../vendors/react-vendor/
+            dockerfile: Dockerfile
+        ports:
+            - 3000:3000
+        depends_on:
+            - golang-connectors
     
     # restore:
     #     image: mongo:latest

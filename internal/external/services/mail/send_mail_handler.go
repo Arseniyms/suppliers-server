@@ -40,7 +40,7 @@ func SendToMail(w http.ResponseWriter, r *http.Request) {
 		"<html><body>" +
 			"<h1>" + c.CompanyName + "</h1>" +
 			"<ul>" +
-			createLi("Агрегатор/Вендор: ", c.CompanyType) +
+			createLi("Интегратор/Вендор: ", c.CompanyType) +
 			createLi("ИНН: ", c.INN) +
 			createLi("Сайт: ", c.Website) +
 			createLi("ФИО: ", c.People) +

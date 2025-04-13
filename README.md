@@ -4,8 +4,19 @@
 
 ## Установка
 
+1) Скачивание серверной части
 ```bash
 git clone https://github.com/Arseniyms/suppliers-server.git
+```
+
+2) Скачивание сайта
+```bash
+git clone https://github.com/Arseniyms/SuppliersJS.git
+```
+
+3) Переходим в корневю папку сервера!
+```bash
+cd suppliers-server
 ```
 
 ## Запуск
@@ -60,3 +71,5 @@ Server is running on port 9090
 Successfully connected
 Now you can make requests
 ```
+
+Переходим на сайт: http://localhost:3000 - должна открыться панель управления компаниями
