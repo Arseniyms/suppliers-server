@@ -22,7 +22,7 @@ services:
 
     react-app:
         build:
-            context: ../vendors/react-vendor/
+            context: ../SuppliersJS/react-vendor/
             dockerfile: Dockerfile
         ports:
             - 3000:3000
